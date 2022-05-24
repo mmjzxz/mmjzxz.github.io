@@ -13,9 +13,9 @@
       
       <categories>
           
-          <category> 随笔 </category>
-          
           <category> Spring </category>
+          
+          <category> Data Access </category>
           
           <category> Transaction Management </category>
           
