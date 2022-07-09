@@ -4,6 +4,35 @@
   
     
     <entry>
+      <title>包装类</title>
+      <link href="/2022/07/09/%E5%8C%85%E8%A3%85%E7%B1%BB%E5%B8%B8%E9%87%8F%E6%B1%A0/"/>
+      <url>/2022/07/09/%E5%8C%85%E8%A3%85%E7%B1%BB%E5%B8%B8%E9%87%8F%E6%B1%A0/</url>
+      
+        <content type="html"><![CDATA[<p><img src="/2022/07/09/%E5%8C%85%E8%A3%85%E7%B1%BB%E5%B8%B8%E9%87%8F%E6%B1%A0/bg.jpg"></p><h1 id="包装类常量池"><a href="#包装类常量池" class="headerlink" title="包装类常量池"></a>包装类常量池</h1><p>Byte，Short，Integer，Long这4中包装类默认创建了数值[-128,127]的相应类型的缓存数据，Character创建了数值在[0,127]范围的缓存数据，Boolean直接返回True or False。</p><h5 id="Integer缓存源码"><a href="#Integer缓存源码" class="headerlink" title="Integer缓存源码"></a>Integer缓存源码</h5><p>返回一个表示指定int值的Integer实例。如果不需要新的Integer实例，则通常应优先使用此方法而不是构造函数Integer(int) ，因为此方法可能会通过缓存频繁请求的值来显着提高空间和时间性能。此方法将始终缓存 -128 到 127（含）范围内的值，并且可能缓存此范围之外的其他值。</p><pre><code class="java">private static class IntegerCache {    static final int low = -128;    static final int high;    static final Integer cache[];    static {        // high value may be configured by property        int h = 127;        ......    }}public static Integer valueOf(int i) {    if (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)        return IntegerCache.cache[i + (-IntegerCache.low)];    return new Integer(i);}</code></pre><h5 id="Character缓存源码"><a href="#Character缓存源码" class="headerlink" title="Character缓存源码"></a>Character缓存源码</h5><p>返回表示指定char值的Character实例。如果不需要新的Character实例，则通常应优先使用此方法而不是构造函数Character(char) ，因为此方法可能会通过缓存频繁请求的值来显着提高空间和时间性能。此方法将始终缓存’\u0000’到’\u007F’范围内的值，包括在内，并且可能缓存此范围之外的其他值。</p><pre><code class="java">private static class CharacterCache {    private CharacterCache(){}    static final Character cache[] = new Character[127 + 1];    static {        for (int i = 0; i &lt; cache.length; i++)            cache[i] = new Character((char)i);        }    }}public static Character valueOf(char c) {    if (c &lt;= 127) { // must cache        return CharacterCache.cache[(int)c];    }    return new Character(c);}</code></pre><h5 id="Boolean缓存源码"><a href="#Boolean缓存源码" class="headerlink" title="Boolean缓存源码"></a>Boolean缓存源码</h5><p>返回一个表示指定boolean值的Boolean实例。如果指定的boolean值为true ，则此方法返回Boolean.TRUE ；如果为false ，则此方法返回Boolean.FALSE 。如果不需要新的Boolean实例，则通常应优先使用此方法而不是构造函数Boolean(boolean) ，因为此方法可能会产生明显更好的空间和时间性能。</p><pre><code class="java">public static Boolean valueOf(boolean b) {    return (b ? TRUE : FALSE);}</code></pre><h5 id="规范事项"><a href="#规范事项" class="headerlink" title="规范事项"></a>规范事项</h5><p><img src="/2022/07/09/%E5%8C%85%E8%A3%85%E7%B1%BB%E5%B8%B8%E9%87%8F%E6%B1%A0/alibaba%E8%A7%84%E8%8C%83.png"></p><h5 id="自动装箱与拆箱"><a href="#自动装箱与拆箱" class="headerlink" title="自动装箱与拆箱"></a>自动装箱与拆箱</h5><ul><li><p>装箱：将基本类型用它们对应的引用类型包装起来</p></li><li><p>拆箱：将包装类型转换为基本数据类型</p><pre><code class="java">Integer i = 10;//装箱int n = i; //拆箱</code></pre><pre><code class="java"> 0 bipush 10 2 invokestatic #2 &lt;java/lang/Integer.valueOf : (I)Ljava/lang/Integer;&gt; 5 astore_1 6 aload_1 7 invokevirtual #3 &lt;java/lang/Integer.intValue : ()I&gt;10 istore_211 return</code></pre></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> java基础 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> java基础 </tag>
+            
+            <tag> 包装类 </tag>
+            
+            <tag> 常量池 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>分布式锁</title>
       <link href="/2022/05/28/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/"/>
       <url>/2022/05/28/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/</url>
