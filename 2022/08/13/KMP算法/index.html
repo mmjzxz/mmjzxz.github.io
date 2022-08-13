@@ -195,8 +195,7 @@ private int indexOfSupplementary(int ch, int fromIndex) {
                 int fromIndex) {
      // 1、当开始查找位置的索引fromIndex大于等于源字符串的长度时,
      /*
-     如果查找字符串target为空(targetCount为0),则返回被搜索的字符source的长度，即该字符的末位置;
-    否则返回-1,表示当前source字符串不包含target字符串;
+     如果查找字符串target为空(targetCount为0),则返回被搜索的字符source的长度，即该字符的末位置;否则返        回-1,表示当前source字符串不包含target字符串;
     */
     if (fromIndex &gt;= sourceCount) {
         return (targetCount == 0 ? sourceCount : -1);
