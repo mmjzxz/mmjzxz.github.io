@@ -7,18 +7,18 @@ KMP算法是一种改进的字符串匹配算法，由D.E.Knuth，J.H.Morris和V
 给定两个字符串source(被搜索的字符串)和target(正在搜索的字符串)，需要查找target字符串在source字符串中出现的位置，该如何查找？
 如果通过暴力匹配算法，则需要尝试将source中每一个字符作为开头与target字符串进行匹配。.."><meta name="generator" content="Hexo 5.4.2">
 <style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
-</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">mmjzxz's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">KMP算法</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">点击返回顶部</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">首页</a></h3><h3 class="is-inline-block"><a href="/about">关于</a></h3><h3 class="is-inline-block"><a href="/archives">归档</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">首页</a></h3><h3 class="is-inline-block"><a href="/about">关于</a></h3><h3 class="is-inline-block"><a href="/archives">归档</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#KMP%E7%AE%97%E6%B3%95"><span class="toc-text">KMP算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%9A%B4%E5%8A%9B%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95"><span class="toc-text">2. 暴力匹配算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-KMP%E7%AE%97%E6%B3%95"><span class="toc-text">3. KMP算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-String%E6%BA%90%E7%A0%81indexOf-%E6%96%B9%E6%B3%95"><span class="toc-text">4. String源码indexOf()方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-indexOf-%E6%96%B9%E6%B3%95%E7%AE%80%E4%BB%8B"><span class="toc-text">4.1 indexOf()方法简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-indexOf-%E6%96%B9%E6%B3%95%E4%BD%BF%E7%94%A8"><span class="toc-text">4.2 indexOf()方法使用</span></a></li></ol></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"><i class="tag post-item-tag">数据结构与算法</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">KMP算法</h1><time class="has-text-grey" datetime="2022-08-13T05:04:20.000Z">2022-08-13</time><article class="mt-2 post-content"><p><img src="/2022/08/13/KMP%E7%AE%97%E6%B3%95/KMP%E7%AE%97%E6%B3%95bg.jpg"></p>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">mmjzxz's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">KMP算法</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">点击返回顶部</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">首页</a></h3><h3 class="is-inline-block"><a href="/about">关于</a></h3><h3 class="is-inline-block"><a href="/archives">归档</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">首页</a></h3><h3 class="is-inline-block"><a href="/about">关于</a></h3><h3 class="is-inline-block"><a href="/archives">归档</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#KMP%E7%AE%97%E6%B3%95"><span class="toc-text">KMP算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%9A%B4%E5%8A%9B%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95"><span class="toc-text">2. 暴力匹配算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-KMP%E7%AE%97%E6%B3%95"><span class="toc-text">3. KMP算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-String%E6%BA%90%E7%A0%81indexOf-%E6%96%B9%E6%B3%95"><span class="toc-text">4. String源码indexOf()方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-indexOf-%E6%96%B9%E6%B3%95%E7%AE%80%E4%BB%8B"><span class="toc-text">4.1 indexOf()方法简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-indexOf-%E6%96%B9%E6%B3%95%E5%BD%A2%E5%BC%8F-%E9%87%8D%E8%BD%BD"><span class="toc-text">4.2 indexOf()方法形式(重载)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-indexOf-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">4.3 indexOf()字符串匹配算法源码分析</span></a></li></ol></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"><i class="tag post-item-tag">数据结构与算法</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">KMP算法</h1><time class="has-text-grey" datetime="2022-08-13T05:04:20.000Z">2022-08-13</time><article class="mt-2 post-content"><p><img src="/2022/08/13/KMP%E7%AE%97%E6%B3%95/KMP%E7%AE%97%E6%B3%95bg.jpg"></p>
 <h1 id="KMP算法"><a href="#KMP算法" class="headerlink" title="KMP算法"></a>KMP算法</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><blockquote>
-<p>KMP算法是一种改进的字符串匹配算法，由D.E.Knuth，J.H.Morris和V.R.Pratt提出的，因此人们称它为克努特—莫里斯—普拉特操作（简称KMP算法）。KMP算法的核心是利用匹配失败后的信息，尽量减少模式串与主串的匹配次数以达到快速匹配的目的。具体实现就是通过一个next()函数实现，<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%87%BD%E6%95%B0/18686609">函数</a>本身包含了模式串的局部匹配信息。KMP算法的<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6/1894057">时间复杂度</a>O(m+n)。<br><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/KMP%E7%AE%97%E6%B3%95/10951804">kmp算法_百度百科 (baidu.com)</a></p>
+<p><code>KMP</code>算法是一种改进的字符串匹配算法，由D.E.Knuth，J.H.Morris和V.R.Pratt提出的，因此人们称它为克努特—莫里斯—普拉特操作（简称KMP算法）。KMP算法的核心是利用匹配失败后的信息，尽量减少模式串与主串的匹配次数以达到快速匹配的目的。具体实现就是通过一个next()函数实现，<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%87%BD%E6%95%B0/18686609">函数</a>本身包含了模式串的局部匹配信息。KMP算法的<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6/1894057">时间复杂度</a>O(m+n)。<br><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/KMP%E7%AE%97%E6%B3%95/10951804">kmp算法_百度百科 (baidu.com)</a></p>
 </blockquote>
 <h2 id="2-暴力匹配算法"><a href="#2-暴力匹配算法" class="headerlink" title="2. 暴力匹配算法"></a>2. 暴力匹配算法</h2><blockquote>
-<p>给定两个字符串source(被搜索的字符串)和target(正在搜索的字符串)，需要查找target字符串在source字符串中出现的位置，该如何查找？</p>
-<p>如果通过暴力匹配算法，则需要尝试将source中每一个字符作为开头与target字符串进行匹配。<br>假设当前source字符串匹配到i位置，target字符串匹配到j位置，则：</p>
+<p>给定两个字符串<code>source</code>(被搜索的字符串)和<code>target</code>(正在搜索的字符串)，需要查找<code>target</code>字符串在<code>source</code>字符串中出现的位置，该如何查找？</p>
+<p>如果通过暴力匹配算法，则需要尝试将<code>source</code>中每一个字符作为开头与<code>target</code>字符串进行匹配。<br>假设当前<code>source</code>字符串匹配到i位置，<code>target</code>字符串匹配到j位置，则：</p>
 <ul>
-<li>若当前字符匹配成功，即source[i]==target[j]，则i++，j++，并继续匹配下一个字符；</li>
-<li>若当前字符匹配失败，即source[i]!=target[j]，则i需要回溯到初始匹配字符的下一个字符，即i=i-j+1，j重置为0，并重新进行匹配。</li>
+<li>若当前字符匹配成功，即<code>source[i]==target[j]</code>，则<code>i++，j++</code>，并继续匹配下一个字符；</li>
+<li>若当前字符匹配失败，即<code>source[i]!=target[j]</code>，则i需要回溯到初始匹配字符的下一个字符，即<code>i=i-j+1</code>，j重置为0，即<code>j=0</code>，并重新进行匹配。</li>
 </ul>
-<p>对于长度为n的source字符串及长度为m的target字符串，时间复杂度为O(m=n*m)。</p>
+<p>对于长度为<code>n</code>的<code>source</code>字符串及长度为<code>m</code>的<code>target</code>字符串，时间复杂度为<code>O(m=n*m)</code>。</p>
 </blockquote>
 <pre><code class="java">//暴力匹配算法代码
 public int violentMatch(String source, String target) {
@@ -38,13 +38,13 @@ public int violentMatch(String source, String target) {
 }
 </code></pre>
 <h2 id="3-KMP算法"><a href="#3-KMP算法" class="headerlink" title="3. KMP算法"></a>3. KMP算法</h2><h2 id="4-String源码indexOf-方法"><a href="#4-String源码indexOf-方法" class="headerlink" title="4. String源码indexOf()方法"></a>4. String源码indexOf()方法</h2><blockquote>
-<p>对于字符串的匹配这个问题，在java的String类的源代码中提供了indexOf()方法，下面看一下源码中的indexOf()方法。</p>
+<p>对于字符串的匹配这个问题，在java的<code>String</code>类的源代码中提供了indexOf()方法，下面看一下源码中的<code>indexOf()</code>方法。</p>
 </blockquote>
 <h3 id="4-1-indexOf-方法简介"><a href="#4-1-indexOf-方法简介" class="headerlink" title="4.1 indexOf()方法简介"></a>4.1 indexOf()方法简介</h3><blockquote>
-<p>indexOf()是String.java中的一个方法，用于返回[目标字符串]在[源字符串]中的位置。如果源字符串中不存在目标字符串，则返回-1。</p>
+<p><code>indexOf()</code>是String.java中的一个方法，用于返回<code>[目标字符串]</code>在<code>[源字符串]</code>中的位置。如果源字符串中不存在目标字符串，则返回-1。</p>
 </blockquote>
-<h3 id="4-2-indexOf-方法使用"><a href="#4-2-indexOf-方法使用" class="headerlink" title="4.2 indexOf()方法使用"></a>4.2 indexOf()方法使用</h3><blockquote>
-<p>indexOf()方法有以下四种形式：</p>
+<h3 id="4-2-indexOf-方法形式-重载"><a href="#4-2-indexOf-方法形式-重载" class="headerlink" title="4.2 indexOf()方法形式(重载)"></a>4.2 indexOf()方法形式(重载)</h3><blockquote>
+<p><code>indexOf()</code>方法有以下四种形式：</p>
 <ul>
 <li><p><strong>public int indexOf(int ch)：</strong>返回指定字符在字符串中第一次出现处的索引，如果此字符串中没有这样的字符，则返回-1。</p>
 <blockquote>
@@ -58,7 +58,7 @@ public int violentMatch(String source, String target) {
 </code></pre>
 <p>is true. In either case, if no such character occurs in this string, then -1 is returned.<br>Params:<br>ch – a character (Unicode code point).<br>Returns:<br>the index of the first occurrence of the character in the character sequence represented by this object, or -1 if the character does not occur.</p>
 <pre><code class="java">public int indexOf(int ch) {
-    return indexOf(ch, 0);
+       return indexOf(ch, 0);
 }
 </code></pre>
 </blockquote>
@@ -75,27 +75,27 @@ public int violentMatch(String source, String target) {
 </code></pre>
 <p>is true. In either case, if no such character occurs in this string at or after position fromIndex, then -1 is returned.<br>There is no restriction on the value of fromIndex. If it is negative, it has the same effect as if it were zero: this entire string may be searched. If it is greater than the length of this string, it has the same effect as if it were equal to the length of this string: -1 is returned.<br>All indices are specified in char values (Unicode code units).<br>Params:<br>ch – a character (Unicode code point).<br>fromIndex – the index to start the search from.<br>Returns:<br>the index of the first occurrence of the character in the character sequence represented by this object that is greater than or equal to fromIndex, or -1 if the character does not occur.</p>
 <pre><code class="java">public int indexOf(int ch, int fromIndex) {
-    final int max = value.length;
-    if (fromIndex &lt; 0) {
-        fromIndex = 0;
-    } else if (fromIndex &gt;= max) {
-        // Note: fromIndex might be near -1&gt;&gt;&gt;1.
-        return -1;
-    }
+       final int max = value.length;
+       if (fromIndex &lt; 0) {
+           fromIndex = 0;
+       } else if (fromIndex &gt;= max) {
+           // Note: fromIndex might be near -1&gt;&gt;&gt;1.
+           return -1;
+       }
 
-    if (ch &lt; Character.MIN_SUPPLEMENTARY_CODE_POINT) {
-        // handle most cases here (ch is a BMP code point or a
-        // negative value (invalid code point))
-        final char[] value = this.value;
-        for (int i = fromIndex; i &lt; max; i++) {
-            if (value[i] == ch) {
-                return i;
-            }
-        }
-        return -1;
-    } else {
-        return indexOfSupplementary(ch, fromIndex);
-    }
+       if (ch &lt; Character.MIN_SUPPLEMENTARY_CODE_POINT) {
+           // handle most cases here (ch is a BMP code point or a
+           // negative value (invalid code point))
+           final char[] value = this.value;
+           for (int i = fromIndex; i &lt; max; i++) {
+               if (value[i] == ch) {
+                   return i;
+               }
+           }
+           return -1;
+       } else {
+           return indexOfSupplementary(ch, fromIndex);
+       }
 }
 </code></pre>
 <pre><code class="java">/**
@@ -126,7 +126,7 @@ private int indexOfSupplementary(int ch, int fromIndex) {
 </code></pre>
 <p>If no such value of k exists, then -1 is returned.<br>Params:<br>str – the substring to search for.<br>Returns:<br>the index of the first occurrence of the specified substring, or -1 if there is no such occurrence.</p>
 <pre><code class="java">public int indexOf(String str) {
-    return indexOf(str, 0);
+       return indexOf(str, 0);
 }
 </code></pre>
 </blockquote>
@@ -139,51 +139,118 @@ private int indexOfSupplementary(int ch, int fromIndex) {
 </code></pre>
 <p>If no such value of k exists, then -1 is returned.<br>Params:<br>str – the substring to search for.<br>fromIndex – the index from which to start the search.<br>Returns:<br>the index of the first occurrence of the specified substring, starting at the specified index, or -1 if there is no such occurrence.</p>
 <pre><code class="java">public int indexOf(String str, int fromIndex) {
-    return indexOf(value, 0, value.length,
-                   str.value, 0, str.value.length, fromIndex);
+       return indexOf(value, 0, value.length,
+                      str.value, 0, str.value.length, fromIndex);
 }
 </code></pre>
 <p>Code shared by String and StringBuffer to do searches. The source is the character array being searched, and the target is the string being searched for.<br>Params:<br>source – the characters being searched.<br>sourceOffset – offset of the source string.<br>sourceCount – count of the source string.<br>target – the characters being searched for.<br>targetOffset – offset of the target string.<br>targetCount – count of the target string.<br>fromIndex – the index to begin searching from.</p>
 <pre><code class="java">static int indexOf(char[] source, int sourceOffset, int sourceCount,
                    char[] target, int targetOffset, int targetCount,
                    int fromIndex) {
-    if (fromIndex &gt;= sourceCount) {
-        return (targetCount == 0 ? sourceCount : -1);
-    }
-    if (fromIndex &lt; 0) {
-        fromIndex = 0;
-    }
-    if (targetCount == 0) {
-        return fromIndex;
-    }
+       if (fromIndex &gt;= sourceCount) {
+           return (targetCount == 0 ? sourceCount : -1);
+       }
+       if (fromIndex &lt; 0) {
+           fromIndex = 0;
+       }
+       if (targetCount == 0) {
+           return fromIndex;
+       }
 
-    char first = target[targetOffset];
-    int max = sourceOffset + (sourceCount - targetCount);
+       char first = target[targetOffset];
+       int max = sourceOffset + (sourceCount - targetCount);
 
-    for (int i = sourceOffset + fromIndex; i &lt;= max; i++) {
-        /* Look for first character. */
-        if (source[i] != first) {
-            while (++i &lt;= max &amp;&amp; source[i] != first);
-        }
+       for (int i = sourceOffset + fromIndex; i &lt;= max; i++) {
+           /* Look for first character. */
+           if (source[i] != first) {
+               while (++i &lt;= max &amp;&amp; source[i] != first);
+           }
 
-        /* Found first character, now look at the rest of v2 */
-        if (i &lt;= max) {
-            int j = i + 1;
-            int end = j + targetCount - 1;
-            for (int k = targetOffset + 1; j &lt; end &amp;&amp; source[j]
-                 == target[k]; j++, k++);
+           /* Found first character, now look at the rest of v2 */
+           if (i &lt;= max) {
+               int j = i + 1;
+               int end = j + targetCount - 1;
+               for (int k = targetOffset + 1; j &lt; end &amp;&amp; source[j]
+                    == target[k]; j++, k++);
 
-            if (j == end) {
-                /* Found whole string. */
-                return i - sourceOffset;
-            }
-        }
-    }
-    return -1;
+               if (j == end) {
+                   /* Found whole string. */
+                   return i - sourceOffset;
+               }
+           }
+       }
+       return -1;
 }
 </code></pre>
 </blockquote>
 </li>
 </ul>
 </blockquote>
+<h3 id="4-3-indexOf-字符串匹配算法源码分析"><a href="#4-3-indexOf-字符串匹配算法源码分析" class="headerlink" title="4.3 indexOf()字符串匹配算法源码分析"></a>4.3 indexOf()字符串匹配算法源码分析</h3><blockquote>
+<p>对于上述<code>indexOf()</code>方法的多个重载形式，字符串匹配算法主要在<code>静态方法indexOf()</code>中实现，采用的是<code>暴力匹配</code>的方式进行。</p>
+<p>方法参数说明：<br>source – 被搜索的字符。<br>sourceOffset – 源字符串的偏移量。<br>sourceCount – 源字符串的计数。<br>target - 正在搜索的字符。<br>targetOffset – 目标字符串的偏移量。<br>targetCount – 目标字符串的计数。<br>fromIndex – 开始搜索的索引。</p>
+</blockquote>
+<pre><code class="java">static int indexOf(char[] source, int sourceOffset, int sourceCount,
+                char[] target, int targetOffset, int targetCount,
+                int fromIndex) {
+     // 1、当开始查找位置的索引fromIndex大于等于源字符串的长度时,
+     // 如果查找字符串target为空(targetCount为0),则返回被搜索的字符source的长度，即该字符的末位置;
+    // 否则返回-1,表示当前source字符串不包含target字符串;
+    if (fromIndex &gt;= sourceCount) {
+        return (targetCount == 0 ? sourceCount : -1);
+    }
+    // 2、如果开始查找位置的索引fromIndex小于0,则从0位置开始查找;
+    if (fromIndex &lt; 0) {
+        fromIndex = 0;
+    }
+    // 3、如果查找字符串target为空(targetCount为0),则返回fromIndex;
+    if (targetCount == 0) {
+        return fromIndex;
+    }
+    // 4、开始查找,从查找字符串target中获取第一个需要匹配的字符,标记为first;
+    char first = target[targetOffset];
+    
+    // 4.1、计算target中的第一个字符在source字符串中可匹配的最大位置。
+    /*
+    当source字符串max位置之前(包括max位置)的所有字符开头的字符串全部匹配失败后,max+1位置及之后的字符到        source最后一个字符的长度一定小于target字符的长度,则一定匹配失败;
+    以source="abcabcabcd",target="adc",sourceCount=10,targetCount=3,sourceOffset=0,targetOffset=     0,fromIndex&lt;=0为例,max计算结果为0+(10-3)=7。
+    如下第一个for循环中,i初始化为0,i最大可达数值为max,即7。当i&gt;7时,source字符串中可匹配的字符串长度为10-       i,该字符串长度小于target字符串长度,必定不匹配。
+    */
+    int max = sourceOffset + (sourceCount - targetCount);
+    // 4.2、以source中前max+1个字符分别开头循环遍历,查找以该字符开头的字符串是否与target匹配。
+    for (int i = sourceOffset + fromIndex; i &lt;= max; i++) {
+        // 4.2.1、从source字符串中查找到第一个与first字符匹配的字符所在的位置
+        /* Look for first character. */
+        if (source[i] != first) {
+            while (++i &lt;= max &amp;&amp; source[i] != first);
+        }
+        /*
+           4.2.2、如果在source字符串中找到了与first字符匹配的字符，则将以当前字符开头的字符串与target字                符串进行匹配
+         */
+        /* Found first character, now look at the rest of v2 */
+        // 4.2.2.1、由于在4.2.1中进行了++i操作,首先判断i是否小于等于max,原因参考4.1;
+        if (i &lt;= max) {
+            // 4.2.2.2、获取下一个需要匹配的字符的位置,标记为j;
+            int j = i + 1;
+            /* 
+                4.2.2.3、计算成功匹配target字符串时的字符在source字符串中的最大位置,标记为end(end的最                    大值为sourceCount,可结合4.1的示例计算);
+            */
+            int end = j + targetCount - 1;
+            // 4.2.2.4、循环遍历,从target的下一个未匹配的字符及source字符串j位置的字符开始匹配;
+            /*
+                在j未越界(4.2.2.3计算可得),若source的当前字符与target的当前字符匹配,则继续匹配下一个字                    符;
+            */
+            for (int k = targetOffset + 1; j &lt; end &amp;&amp; source[j]
+                 == target[k]; j++, k++);
+            // 4.2.2.5、如果j与end相等,则说明源字符串source匹配到目标字符串target,返回匹配开始位置
+            if (j == end) {
+                /* Found whole string. */
+                return i - sourceOffset;
+            }
+        }
+    }
+    // 未匹配到target字符串,返回-1。
+    return -1;
+}
+</code></pre>
 </article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><em></em><a class="button is-default" href="/2022/07/04/ArrayList/" title="ArrayList"><span class="has-text-weight-semibold">下一页: ArrayList</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><!--if (debugSNS || theme.social.twitter)--><!--    a(title="twitter" target="_blank" rel="noopener nofollow" href=`//twitter.com/${theme.social.twitter}`)--><!--        i.iconfont.icon-twitter--><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/mmjzxz"><i class="iconfont icon-github"></i></a><!--// Ins--><!--if (debugSNS || theme.social.instagram)--><!--    a(title="instagram" target="_blank" rel="noopener nofollow" href=`//www.instagram.com/${theme.social.instagram}`)--><!--        i.iconfont.icon-ins--><!--// RSS--><!--if (debugSNS || config.feed && config.feed.enable)--><!--    a(title="rss" target="_blank" rel="noopener nofollow" href= url_for(config.feed.path))--><!--        i.iconfont.icon-rss--><!--// 知乎--><!--if (debugSNS || theme.social.zhihu)--><!--    a(title="zhihu" target="_blank" rel="noopener nofollow" href=`//zhihu.com/${theme.social.zhihu}`)--><!--        i.iconfont.icon-zhihu--><!--// 领英--><!--if (debugSNS || theme.social.linkedin)--><!--    a(title="linkedin" target="_blank" rel="noopener nofollow" href=`//www.linkedin.com/in/${theme.social.linkedin}`)--><!--        i.iconfont.icon-linkedin--><!--// 脸书--><!--if (debugSNS || theme.social.facebook)--><!--    a(title="facebook" target="_blank" rel="noopener nofollow" href=`//www.facebook.com/${theme.social.facebook}`)--><!--        i.iconfont.icon-tian7_facebook--><!-- qq--><!--if (debugSNS || theme.social.qq)--><!--    a(title="qq" target="_blank" rel="noopener nofollow" href=`tencent://AddContact/?fromId=45&fromSubId=1&subcmd=all&uin=${theme.social.qq}&website=www.oicqzone.com`)--><!--        i.iconfont.icon-twitter--><!--// email--><!--if (debugSNS || theme.social.email)--><!--    a(title="email" target="_blank" rel="noopener nofollow" href=``)--><!--        i.iconfont.icon-ins--></section><p><span>Copyright ©</span><span> mmjzxz 2022</span></p><div class="is-flex is-justify-content-center is-flex-wrap-wrap"><p>Powered by Hexo &verbar;&nbsp;</p><p class="is-flex is-justify-content-center"><a title="Hexo theme author" target="_blank" rel="noopener" href="//github.com/haojen">Theme by Haojen&nbsp;</a></p><div style="margin-top: 2px"><a class="github-button" title="github-button" target="_blank" rel="noopener" href="https://github.com/haojen/hexo-theme-Claudia" data-color-scheme="no-preference: light; light: light; dark: dark;" data-show-count="true"></a></div></div><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>
