@@ -1,15 +1,16 @@
 <!DOCTYPE html><html class="appearance-auto" lang="zh-CN"><head><meta charset="UTF-8"><title>KMP算法</title><meta name="description" content="满船清梦"><meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1"><!-- Google Analytics --><!-- End Google Analytics -->
 <!-- Baidu Analytics --><!-- End Baidu Analytics --><link rel="icon" href="/images/favicon.png"><link rel="stylesheet" href="/style/common/bulma.css"><link rel="stylesheet" href="/style/base.css"><link rel="stylesheet" href="/style/common/helper.css"><script src="/js/common.js"></script><link rel="stylesheet" href="/style/post.css"><link rel="stylesheet" href="/style/themes/highlight-theme-light.css"><script src="/js/highlight.pack.js"></script><meta name="description" content="
-KMP算法1.简介
+KMP算法1.引言
 KMP算法是一种改进的字符串匹配算法，由D.E.Knuth，J.H.Morris和V.R.Pratt提出的，因此人们称它为克努特—莫里斯—普拉特操作（简称KMP算法）。KMP算法的核心是利用匹配失败后的信息，尽量减少模式串与主串的匹配次数以达到快速匹配的目的。具体实现就是通过一个next()函数实现，函数本身包含了模式串的局部匹配信息。KMP算法的时间复杂度O(m+n)。kmp算法_百度百科 (baidu.com)
+本篇文章从字符串的暴力匹配算法写起，随后阐明KMP算法的步骤流程、如何求解next数组、基于next数组对KMP算法的证明等问题，最后由字符串匹配问题联想到String类indexOf()方法，并对该方法从源码进行解析。
 
 2.暴力匹配算法
-给定两个字符串source(被搜索的字符串)和target(正在搜索的字符串)，需要查找target字符串在source字符串中出现的位置，该如何查找？
-如果通过暴力匹配算法，则需要尝试将source中每一个字符作为开头与target字符串进行匹配。假设.."><meta name="generator" content="Hexo 5.4.2">
+给定两个字符串source(被搜.."><meta name="generator" content="Hexo 5.4.2">
 <style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
-</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">mmjzxz's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">KMP算法</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">点击返回顶部</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">首页</a></h3><h3 class="is-inline-block"><a href="/about">关于</a></h3><h3 class="is-inline-block"><a href="/archives">归档</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">首页</a></h3><h3 class="is-inline-block"><a href="/about">关于</a></h3><h3 class="is-inline-block"><a href="/archives">归档</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#KMP%E7%AE%97%E6%B3%95"><span class="toc-text">KMP算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="toc-text">1.简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%9A%B4%E5%8A%9B%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95"><span class="toc-text">2.暴力匹配算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-KMP%E7%AE%97%E6%B3%95"><span class="toc-text">3.KMP算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-String%E6%BA%90%E7%A0%81indexOf-%E6%96%B9%E6%B3%95"><span class="toc-text">4.String源码indexOf()方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-indexOf-%E6%96%B9%E6%B3%95%E7%AE%80%E4%BB%8B"><span class="toc-text">4.1 indexOf()方法简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-indexOf-%E6%96%B9%E6%B3%95%E5%BD%A2%E5%BC%8F-%E9%87%8D%E8%BD%BD"><span class="toc-text">4.2 indexOf()方法形式(重载)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-indexOf-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">4.3 indexOf()字符串匹配算法源码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E4%B8%BA%E4%BB%80%E4%B9%88String-indexOf-%E6%96%B9%E6%B3%95%E6%B2%A1%E6%9C%89%E4%BD%BF%E7%94%A8KMP%E7%AE%97%E6%B3%95"><span class="toc-text">4.4 为什么String.indexOf()方法没有使用KMP算法?</span></a></li></ol></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"><i class="tag post-item-tag">数据结构与算法</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">KMP算法</h1><time class="has-text-grey" datetime="2022-08-13T05:04:20.000Z">2022-08-13</time><article class="mt-2 post-content"><p><img src="/2022/08/13/KMP%E7%AE%97%E6%B3%95/KMP%E7%AE%97%E6%B3%95bg.jpg"></p>
-<h1 id="KMP算法"><a href="#KMP算法" class="headerlink" title="KMP算法"></a>KMP算法</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1.简介"></a>1.简介</h2><blockquote>
+</head><body class="is-flex is-flex-direction-column"><header class="header-widget is-flex-shrink-0 is-hidden-mobile"><div class="container is-fullhd is-flex is-justify-content-space-between is-align-items-center is-full-height"><section class="is-hidden-mobile is-flex-shrink-0"><h2><a href="/">mmjzxz's blog</a></h2></section><h3 class="is-hidden-mobile is-family-serif is-full-height is-flex is-align-items-center is-flex-shrink-0"><div class="is-full-height" id="postTopic"><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">KMP算法</p><p class="is-full-height is-flex-shrink-0 is-flex is-align-items-center is-justify-content-center">点击返回顶部</p></div></h3><aside class="is-flex-shrink-0"><h3 class="is-inline-block"><a href="/">首页</a></h3><h3 class="is-inline-block"><a href="/about">关于</a></h3><h3 class="is-inline-block"><a href="/archives">归档</a></h3></aside></div></header><header class="is-flex header-widget is-flex-shrink-0 is-align-items-center is-justify-content-center is-hidden-tablet"><h3 class="is-inline-block"><a href="/">首页</a></h3><h3 class="is-inline-block"><a href="/about">关于</a></h3><h3 class="is-inline-block"><a href="/archives">归档</a></h3></header><main><main class="container is-max-widescreen content section post-page pt-4 px-4"><div class="columns is-flex-desktop is-justify-content-center is-flex-direction-row-reverse"><div class="column is-3 is-hidden-mobile"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#KMP%E7%AE%97%E6%B3%95"><span class="toc-text">KMP算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BC%95%E8%A8%80"><span class="toc-text">1.引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%9A%B4%E5%8A%9B%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95"><span class="toc-text">2.暴力匹配算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-KMP%E7%AE%97%E6%B3%95"><span class="toc-text">3.KMP算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%AE%80%E4%BB%8B"><span class="toc-text">3.1 简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-KMP%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B"><span class="toc-text">3.2 KMP算法流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%89%8D%E7%BC%80%E4%B8%8E%E5%90%8E%E7%BC%80"><span class="toc-text">3.3 前缀与后缀</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-1-%E5%89%8D%E7%BC%80%E4%B8%8E%E5%90%8E%E7%BC%80%E5%AE%9A%E4%B9%89"><span class="toc-text">3.3.1 前缀与后缀定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3-2-%E6%9F%A5%E6%89%BE%E6%9C%80%E9%95%BF%E5%89%8D%E7%BC%80%E4%B8%8E%E5%90%8E%E7%BC%80"><span class="toc-text">3.3.2 查找最长前缀与后缀</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E6%B1%82next%E6%95%B0%E7%BB%84"><span class="toc-text">3.4 求next数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-KMP%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86%E5%8F%8A%E8%AF%81%E6%98%8E"><span class="toc-text">3.5 KMP算法原理及证明</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-1-KMP%E7%AE%97%E6%B3%95%E7%9B%B8%E8%BE%83%E4%BA%8E%E6%9A%B4%E5%8A%9B%E5%8C%B9%E9%85%8D%E7%9A%84%E5%8A%A0%E9%80%9F%E5%8E%9F%E7%90%86"><span class="toc-text">3.5.1 KMP算法相较于暴力匹配的加速原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-2-KMP%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86%E5%AE%9E%E8%B4%A8%E8%AF%81%E6%98%8E"><span class="toc-text">3.5.2 KMP算法原理实质证明</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-String%E6%BA%90%E7%A0%81indexOf-%E6%96%B9%E6%B3%95"><span class="toc-text">4.String源码indexOf()方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-indexOf-%E6%96%B9%E6%B3%95%E7%AE%80%E4%BB%8B"><span class="toc-text">4.1 indexOf()方法简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-indexOf-%E6%96%B9%E6%B3%95%E5%BD%A2%E5%BC%8F-%E9%87%8D%E8%BD%BD"><span class="toc-text">4.2 indexOf()方法形式(重载)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-indexOf-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">4.3 indexOf()字符串匹配算法源码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E4%B8%BA%E4%BB%80%E4%B9%88String-indexOf-%E6%96%B9%E6%B3%95%E6%B2%A1%E6%9C%89%E4%BD%BF%E7%94%A8KMP%E7%AE%97%E6%B3%95"><span class="toc-text">4.4 为什么String.indexOf()方法没有使用KMP算法?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%8F%82%E8%80%83"><span class="toc-text">5.参考</span></a></li></ol></li></ol></div><div class="column is-9"><header class="my-4"><a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"><i class="tag post-item-tag">数据结构与算法</i></a></header><h1 class="mt-0 mb-1 is-family-serif" id="postTitle">KMP算法</h1><time class="has-text-grey" datetime="2022-08-13T05:04:20.000Z">2022-08-13</time><article class="mt-2 post-content"><p><img src="/2022/08/13/KMP%E7%AE%97%E6%B3%95/KMP%E7%AE%97%E6%B3%95bg.jpg"></p>
+<h1 id="KMP算法"><a href="#KMP算法" class="headerlink" title="KMP算法"></a>KMP算法</h1><h2 id="1-引言"><a href="#1-引言" class="headerlink" title="1.引言"></a>1.引言</h2><blockquote>
 <p><code>KMP</code>算法是一种改进的字符串匹配算法，由D.E.Knuth，J.H.Morris和V.R.Pratt提出的，因此人们称它为克努特—莫里斯—普拉特操作（简称KMP算法）。KMP算法的核心是利用匹配失败后的信息，尽量减少模式串与主串的匹配次数以达到快速匹配的目的。具体实现就是通过一个next()函数实现，<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%87%BD%E6%95%B0/18686609">函数</a>本身包含了模式串的局部匹配信息。KMP算法的<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6/1894057">时间复杂度</a>O(m+n)。<br><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/KMP%E7%AE%97%E6%B3%95/10951804">kmp算法_百度百科 (baidu.com)</a></p>
+<p>本篇文章从字符串的暴力匹配算法写起，随后阐明KMP算法的步骤流程、如何求解next数组、基于next数组对KMP算法的证明等问题，最后由字符串匹配问题联想到String类indexOf()方法，并对该方法从源码进行解析。</p>
 </blockquote>
 <h2 id="2-暴力匹配算法"><a href="#2-暴力匹配算法" class="headerlink" title="2.暴力匹配算法"></a>2.暴力匹配算法</h2><blockquote>
 <p>给定两个字符串<code>source</code>(被搜索的字符串)和<code>target</code>(正在搜索的字符串)，需要查找<code>target</code>字符串在<code>source</code>字符串中出现的位置，该如何查找？</p>
@@ -38,7 +39,202 @@ public int violentMatch(String source, String target) {
 }
 </code></pre>
 <p><img src="/2022/08/13/KMP%E7%AE%97%E6%B3%95/violentMatch/violentMatchPS.gif"></p>
-<h2 id="3-KMP算法"><a href="#3-KMP算法" class="headerlink" title="3.KMP算法"></a>3.KMP算法</h2><h2 id="4-String源码indexOf-方法"><a href="#4-String源码indexOf-方法" class="headerlink" title="4.String源码indexOf()方法"></a>4.String源码indexOf()方法</h2><blockquote>
+<h2 id="3-KMP算法"><a href="#3-KMP算法" class="headerlink" title="3.KMP算法"></a>3.KMP算法</h2><h3 id="3-1-简介"><a href="#3-1-简介" class="headerlink" title="3.1 简介"></a>3.1 简介</h3><blockquote>
+<p>KMP算法是三位学者在 Brute-Force算法的基础上同时提出的模式匹配的改进算法。Brute- Force算法在模式串中有多个字符和主串中的若干个连续字符比较都相等,但最后一个字符比较不相等时,主串的比较位置需要回退。KMP算法在上述情况下,主串位置不需要回退,从而可以大大提高效率。</p>
+</blockquote>
+<h3 id="3-2-KMP算法流程"><a href="#3-2-KMP算法流程" class="headerlink" title="3.2 KMP算法流程"></a>3.2 KMP算法流程</h3><blockquote>
+<ul>
+<li>假设现在文本串 S 匹配到 i 位置，模式串 P 匹配到 j 位置</li>
+<li>如果 j = -1，或者当前字符匹配成功（即 S[i] == P[j] ），都令 i++，j++，继续匹配下一个字符； </li>
+<li>如果 j != -1，且当前字符匹配失败（即 S[i] != P[j] ），则令 i 不变，j = next[j]。此举意味着失配时，模式串 P相对于文本串 S 向右移动了 j - next [j] 位。</li>
+<li>换言之，当匹配失败时，模式串向右移动的位数为：失配字符所在位置 - 失配字符对应的next 值，即移动的实际位数为：j - next[j]，且此值大于等于1。</li>
+</ul>
+</blockquote>
+<h3 id="3-3-前缀与后缀"><a href="#3-3-前缀与后缀" class="headerlink" title="3.3 前缀与后缀"></a>3.3 前缀与后缀</h3><h4 id="3-3-1-前缀与后缀定义"><a href="#3-3-1-前缀与后缀定义" class="headerlink" title="3.3.1 前缀与后缀定义"></a>3.3.1 前缀与后缀定义</h4><blockquote>
+<p><strong>前缀：</strong>除了最后一个字符以外，一个字符串的全部头部组合。</p>
+<p><strong>后缀：</strong>除了第一个字符以外，一个字符串的全部尾部组合。</p>
+</blockquote>
+<h4 id="3-3-2-查找最长前缀与后缀"><a href="#3-3-2-查找最长前缀与后缀" class="headerlink" title="3.3.2 查找最长前缀与后缀"></a>3.3.2 查找最长前缀与后缀</h4><blockquote>
+<p>给定模式串为”ABCDABD”，从左至右遍历模式串，各个子串的前缀与后缀如下所示：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">模式串各个子串</th>
+<th align="center">前缀</th>
+<th align="center">后缀</th>
+<th align="center">最大公共元素长度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">A</td>
+<td align="center">空</td>
+<td align="center">空</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">AB</td>
+<td align="center">A</td>
+<td align="center">B</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">ABC</td>
+<td align="center">A，AB</td>
+<td align="center">C，BC</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">ABCD</td>
+<td align="center">A，AB，ABC</td>
+<td align="center">D，CD，BCD</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">ABCDA</td>
+<td align="center">A,AB,ABC,ABCD</td>
+<td align="center">A，DA，CDA，BCDA</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="center">ABCDAB</td>
+<td align="center">A，AB，ABC，ABCD，ABCDA</td>
+<td align="center">B，AB，DAB，CDAB，BCDAB</td>
+<td align="center">2</td>
+</tr>
+<tr>
+<td align="center">ABCDABD</td>
+<td align="center">A，AB，ABC，ABCD，ABCDA,，BCDAB</td>
+<td align="center">D，BD，ABD，DABD，CDABD，BCDABD</td>
+<td align="center">0</td>
+</tr>
+</tbody></table>
+<p>原模式串子串对应的各个前缀后缀的公共元素的最大长度表为：</p>
+<table>
+<thead>
+<tr>
+<th align="center">字符</th>
+<th align="center">A</th>
+<th align="center">B</th>
+<th align="center">C</th>
+<th align="center">D</th>
+<th align="center">A</th>
+<th align="center">B</th>
+<th align="center">D</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">最大前缀后缀公共元素长度</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">2</td>
+<td align="center">0</td>
+</tr>
+</tbody></table>
+<h3 id="3-4-求next数组"><a href="#3-4-求next数组" class="headerlink" title="3.4 求next数组"></a>3.4 求next数组</h3><blockquote>
+<p>由3.3.2可知字符串”ABCDABD”各个前缀后缀的最大公共元素长度。根据<strong>最大长度表</strong> 去求 <strong>next 数组</strong>：<strong>next 数组相当于“最大长度值” 整体向右移动一位，然后初始值赋为-1</strong>。</p>
+<p>求出next数组如下：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">模式串</th>
+<th align="center">A</th>
+<th align="center">B</th>
+<th align="center">C</th>
+<th align="center">D</th>
+<th align="center">A</th>
+<th align="center">B</th>
+<th align="center">D</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">next</td>
+<td align="center">-1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">2</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>求”abaabcac”的next数组</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">模式串</th>
+<th align="center">a</th>
+<th align="center">b</th>
+<th align="center">a</th>
+<th align="center">a</th>
+<th align="center">b</th>
+<th align="center">c</th>
+<th align="center">a</th>
+<th align="center">c</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">maxL</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="center">next</td>
+<td align="center">-1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+</tbody></table>
+<h3 id="3-5-KMP算法原理及证明"><a href="#3-5-KMP算法原理及证明" class="headerlink" title="3.5 KMP算法原理及证明"></a>3.5 KMP算法原理及证明</h3><h4 id="3-5-1-KMP算法相较于暴力匹配的加速原理"><a href="#3-5-1-KMP算法相较于暴力匹配的加速原理" class="headerlink" title="3.5.1 KMP算法相较于暴力匹配的加速原理"></a>3.5.1 KMP算法相较于暴力匹配的加速原理</h4><blockquote>
+<p>假设当前有文本串<code>source</code>与模式串<code>target</code>，需要从字符串<code>source</code>的<code>i</code>位置的字符开始判断是否能够匹配字符串<code>target</code>。假设当字符到达字符串<code>source</code>的<code>x</code>位置，字符串<code>target</code>的<code>y</code>位置时出现第一次不相等，即<code>source</code>字符串从<code>i~x-1</code>位置的字符串与<code>target</code>字符串从<code>0~y-1</code>位置的字符串匹配，则：</p>
+<ul>
+<li><p>根据字符串<code>暴力匹配</code>算法，当前情况只能说明以<code>i</code>位置开头的字符串无法匹配<code>target</code>字符串，因此下次匹配应该以<code>i+1</code>位置开头的字符串与<code>target</code>字符串重新开始匹配。(参考2. 暴力匹配算法)</p>
+</li>
+<li><p>而<code>KMP</code>算法中，根据<code>next数组</code>，可以得到<code>y</code>位置字符之前的最大前缀与最大后缀的匹配长度。假设最大前缀与最大后缀的匹配字符串的长度索引取值范围分别为<code>[0，k]</code>，<code>[t，y-1]</code>。source字符串的比对位置<code>x</code>不变，<code>target</code>字符串的比对位置<code>y</code>回跳到<code>k+1</code>位置。</p>
+</li>
+<li><p><strong>实质：</strong>将<code>target</code>字符串的最大后缀的第一个字符所对应的字符在<code>source</code>中的位置记为<code>j</code>。上述KMP算法匹配方式实际是将<code>target</code>字符串向右推，使得<code>target</code>字符串<code>0</code>位置与<code>source</code>字符串<code>j</code>位置相对应，检查以<code>j</code>位置字符开头的字符串是否能够匹配<code>target</code>字符串。</p>
+<ol>
+<li>根据最大前缀与最大后缀可知，<code>[0，k]</code>，<code>[t，y-1]</code>，<code>[j，x-1]</code>区间对应的字符串是匹配的，因此直接从字符可能不同的位置继续向下验证，即<code>k+1</code>位置与<code>x</code>位置。</li>
+<li><code>i</code>位置与<code>j</code>位置之间以任意位置的字符开头的字符串一定不能与<code>target</code>匹配。</li>
+</ol>
+<p>图解参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/greyzeng/p/15317466.html">KMP算法解决字符串匹配问题 - Grey Zeng - 博客园 (cnblogs.com)</a></p>
+</li>
+</ul>
+</blockquote>
+<h4 id="3-5-2-KMP算法原理实质证明"><a href="#3-5-2-KMP算法原理实质证明" class="headerlink" title="3.5.2 KMP算法原理实质证明"></a>3.5.2 KMP算法原理实质证明</h4><blockquote>
+<p>下面对3.5.1中实质的第2点通过next数组进行证明。</p>
+<p><strong>证明：</strong><code>i</code>位置与<code>j</code>位置之间以任意位置的字符开头的字符串一定不能与<code>target</code>匹配。</p>
+<blockquote>
+<p>3.5.1中的假设不变。</p>
+<ol>
+<li>假设<code>i</code>位置与<code>j</code>位置之间以某个位置的字符开头的字符串能够与<code>target</code>字符串匹配，将该位置记为<code>r</code>，且<code>i&lt;r&lt;j</code>，则2。</li>
+<li>对于<code>source</code>字符串索引位置区间<code>[r,x-1]</code>对应的字符串来说，一定与<code>target</code>字符串中<code>[0,x-1-r]</code>区间(即等量长度的字符串)对应的字符串相等。</li>
+<li>根据3.5.1中的假设，<code>source</code>字符串中<code>[r,x-1]</code>区间对应的字符串与<code>target</code>字符串中<code>[y-x+r,y-1]</code>区间对应的字符串应该相等。</li>
+<li>根据上述证明中第2点，第3点可推出<code>target</code>字符串中<code>[0,x-1-r]</code>区间对应的字符串与<code>target</code>字符串中<code>[y-x+r,y-1]</code>区间对应的字符串应该相等。</li>
+<li>根据3.5.1中实质1，即根据最大前缀与最大后缀可知，<code>[0，k]</code>，<code>[t，y-1]</code>，<code>[j，x-1]</code>区间对应的字符串是匹配的。则最大匹配长度为<code>k+1==y-t==x-j</code>。</li>
+<li>根据上述证明第4点，可以推出<code>target</code>字符串的前后缀最大匹配长度为<code>x-r</code>。根据开始的假设条件<code>i&lt;r&lt;j</code>及第5点可推出<code>x-r&gt;x-j</code>，即在<code>target</code>字符串中找到了一个比已知最大前后缀更长的前后缀。根据next数组的含义，<code>target</code>字符串中不存在比<code>x-j</code>更大的最长匹配长度，与之相矛盾。</li>
+<li>因此<code>i</code>位置与<code>j</code>位置之间以任意位置的字符开头的字符串一定不能与<code>target</code>匹配。问题得证。</li>
+</ol>
+</blockquote>
+</blockquote>
+<h2 id="4-String源码indexOf-方法"><a href="#4-String源码indexOf-方法" class="headerlink" title="4.String源码indexOf()方法"></a>4.String源码indexOf()方法</h2><blockquote>
 <p>对于字符串的匹配这个问题，在java的<code>String</code>类的源代码中提供了indexOf()方法，下面看一下源码中的<code>indexOf()</code>方法。</p>
 </blockquote>
 <h3 id="4-1-indexOf-方法简介"><a href="#4-1-indexOf-方法简介" class="headerlink" title="4.1 indexOf()方法简介"></a>4.1 indexOf()方法简介</h3><blockquote>
@@ -268,4 +464,12 @@ private int indexOfSupplementary(int ch, int fromIndex) {
 </blockquote>
 <p>好吧，这与我的理解完全相反，即简单的O(mn)子字符串搜索对于短字符串足够好(可能是最好的)，但随着字符串变长，最终会输给像KMP这样渐近更快的O(m+n)算法。</p>
 </blockquote>
+<h2 id="5-参考"><a href="#5-参考" class="headerlink" title="5.参考"></a>5.参考</h2><ol>
+<li>[很详尽KMP算法（厉害） - ZzUuOo666 - 博客园 (cnblogs.com)](<a target="_blank" rel="noopener" href="https://www.cnblogs.com/zzuuoo666/p/9028287.html#3.1">https://www.cnblogs.com/zzuuoo666/p/9028287.html#3.1</a> 定义)</li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/76348091">七分钟理解什么是 KMP 算法 - 知乎 (zhihu.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/83334559">KMP 算法详解 - 知乎 (zhihu.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV13g41157hK?p=13&amp;vd_source=fc26fbc7af16ad7ac3c98a19784df0cf">11.基础提升 有序表、并查集等_哔哩哔哩_bilibili</a></li>
+<li><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/KMP%E7%AE%97%E6%B3%95/10951804">kmp算法_百度百科 (baidu.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/greyzeng/p/15317466.html">KMP算法解决字符串匹配问题 - Grey Zeng - 博客园 (cnblogs.com)</a></li>
+</ol>
 </article><section class="jump-container is-flex is-justify-content-space-between my-6"><!-- em is empty placeholder--><em></em><a class="button is-default" href="/2022/07/04/ArrayList/" title="ArrayList"><span class="has-text-weight-semibold">下一页: ArrayList</span><i class="iconfont icon-next ml-2 has-text-grey"></i></a></section></div></div></main></main><footer class="is-flex is-flex-direction-column is-align-items-center is-flex-shrink-0 is-family-serif"><section class="sns-container"><!--if (debugSNS || theme.social.twitter)--><!--    a(title="twitter" target="_blank" rel="noopener nofollow" href=`//twitter.com/${theme.social.twitter}`)--><!--        i.iconfont.icon-twitter--><!-- Github--><a title="github" target="_blank" rel="noopener nofollow" href="//github.com/mmjzxz"><i class="iconfont icon-github"></i></a><!--// Ins--><!--if (debugSNS || theme.social.instagram)--><!--    a(title="instagram" target="_blank" rel="noopener nofollow" href=`//www.instagram.com/${theme.social.instagram}`)--><!--        i.iconfont.icon-ins--><!--// RSS--><!--if (debugSNS || config.feed && config.feed.enable)--><!--    a(title="rss" target="_blank" rel="noopener nofollow" href= url_for(config.feed.path))--><!--        i.iconfont.icon-rss--><!--// 知乎--><!--if (debugSNS || theme.social.zhihu)--><!--    a(title="zhihu" target="_blank" rel="noopener nofollow" href=`//zhihu.com/${theme.social.zhihu}`)--><!--        i.iconfont.icon-zhihu--><!--// 领英--><!--if (debugSNS || theme.social.linkedin)--><!--    a(title="linkedin" target="_blank" rel="noopener nofollow" href=`//www.linkedin.com/in/${theme.social.linkedin}`)--><!--        i.iconfont.icon-linkedin--><!--// 脸书--><!--if (debugSNS || theme.social.facebook)--><!--    a(title="facebook" target="_blank" rel="noopener nofollow" href=`//www.facebook.com/${theme.social.facebook}`)--><!--        i.iconfont.icon-tian7_facebook--><!-- qq--><!--if (debugSNS || theme.social.qq)--><!--    a(title="qq" target="_blank" rel="noopener nofollow" href=`tencent://AddContact/?fromId=45&fromSubId=1&subcmd=all&uin=${theme.social.qq}&website=www.oicqzone.com`)--><!--        i.iconfont.icon-twitter--><!--// email--><!--if (debugSNS || theme.social.email)--><!--    a(title="email" target="_blank" rel="noopener nofollow" href=``)--><!--        i.iconfont.icon-ins--></section><p><span>Copyright ©</span><span> mmjzxz 2022</span></p><div class="is-flex is-justify-content-center is-flex-wrap-wrap"><p>Powered by Hexo &verbar;&nbsp;</p><p class="is-flex is-justify-content-center"><a title="Hexo theme author" target="_blank" rel="noopener" href="//github.com/haojen">Theme by Haojen&nbsp;</a></p><div style="margin-top: 2px"><a class="github-button" title="github-button" target="_blank" rel="noopener" href="https://github.com/haojen/hexo-theme-Claudia" data-color-scheme="no-preference: light; light: light; dark: dark;" data-show-count="true"></a></div></div><div><span></span></div></footer><script async defer src="https://buttons.github.io/buttons.js"></script><script src="/js/post.js"></script></body></html>
